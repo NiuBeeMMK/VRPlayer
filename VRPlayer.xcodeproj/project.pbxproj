@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB9F578522816A2B00ABDCC4 /* SCN3DPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9F578322816A2B00ABDCC4 /* SCN3DPlayerView.m */; };
+		AB9F578622816A2B00ABDCC4 /* SCN3DVideoAdatper.m in Sources */ = {isa = PBXBuildFile; fileRef = AB9F578422816A2B00ABDCC4 /* SCN3DVideoAdatper.m */; };
 		ABAF2C13228167C3009E1A10 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = ABAF2C12228167C3009E1A10 /* AppDelegate.m */; };
 		ABAF2C16228167C3009E1A10 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ABAF2C15228167C3009E1A10 /* ViewController.m */; };
 		ABAF2C19228167C3009E1A10 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABAF2C17228167C3009E1A10 /* Main.storyboard */; };
@@ -16,6 +18,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AB9F578122816A2B00ABDCC4 /* SCN3DPlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCN3DPlayerView.h; sourceTree = "<group>"; };
+		AB9F578222816A2B00ABDCC4 /* SCN3DVideoAdatper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCN3DVideoAdatper.h; sourceTree = "<group>"; };
+		AB9F578322816A2B00ABDCC4 /* SCN3DPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCN3DPlayerView.m; sourceTree = "<group>"; };
+		AB9F578422816A2B00ABDCC4 /* SCN3DVideoAdatper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCN3DVideoAdatper.m; sourceTree = "<group>"; };
 		ABAF2C0E228167C3009E1A10 /* VRPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VRPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABAF2C11228167C3009E1A10 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		ABAF2C12228167C3009E1A10 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -39,6 +45,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB9F578022816A2B00ABDCC4 /* SCN3DPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				AB9F578122816A2B00ABDCC4 /* SCN3DPlayerView.h */,
+				AB9F578222816A2B00ABDCC4 /* SCN3DVideoAdatper.h */,
+				AB9F578322816A2B00ABDCC4 /* SCN3DPlayerView.m */,
+				AB9F578422816A2B00ABDCC4 /* SCN3DVideoAdatper.m */,
+			);
+			path = SCN3DPlayer;
+			sourceTree = "<group>";
+		};
 		ABAF2C05228167C3009E1A10 = {
 			isa = PBXGroup;
 			children = (
@@ -58,6 +75,7 @@
 		ABAF2C10228167C3009E1A10 /* VRPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				AB9F578022816A2B00ABDCC4 /* SCN3DPlayer */,
 				ABAF2C11228167C3009E1A10 /* AppDelegate.h */,
 				ABAF2C12228167C3009E1A10 /* AppDelegate.m */,
 				ABAF2C14228167C3009E1A10 /* ViewController.h */,
@@ -143,7 +161,9 @@
 			files = (
 				ABAF2C16228167C3009E1A10 /* ViewController.m in Sources */,
 				ABAF2C21228167C3009E1A10 /* main.m in Sources */,
+				AB9F578622816A2B00ABDCC4 /* SCN3DVideoAdatper.m in Sources */,
 				ABAF2C13228167C3009E1A10 /* AppDelegate.m in Sources */,
+				AB9F578522816A2B00ABDCC4 /* SCN3DPlayerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,13 +308,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = V2TE44U4HF;
 				INFOPLIST_FILE = VRPlayer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.79smart.VRPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -305,13 +326,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = V2TE44U4HF;
 				INFOPLIST_FILE = VRPlayer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.79smart.VRPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
