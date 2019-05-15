@@ -172,6 +172,17 @@
             self.cameraNode.camera.usesOrthographicProjection = NO;
         }
             break;
+        case SCN3DDisplayModeVRPlanet: {
+            SCNSphere *sphere = [SCNSphere sphereWithRadius:1.0];
+            sphere.segmentCount = 96;
+            self.shapeNode = [SCNNode nodeWithGeometry:sphere];
+            self.shapeNode.geometry.firstMaterial.diffuse.wrapT = SCNWrapModeClamp;
+            self.shapeNode.geometry.firstMaterial.diffuse.wrapS = SCNWrapModeClamp;
+            self.shapeNode.geometry.firstMaterial.cullMode = SCNCullFront;
+            self.cameraNode.position = SCNVector3Make(0, 0.1, 1.0);
+            self.cameraNode.camera.usesOrthographicProjection = NO;
+        }
+            break;
             
         default:
             break;
@@ -276,6 +287,9 @@
         }
             break;
         case SCN3DDisplayModeVRGlasses: {
+        }
+            break;
+        case SCN3DDisplayModeVRPlanet: {
         }
             break;
             

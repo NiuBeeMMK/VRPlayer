@@ -18,7 +18,7 @@
 @property (strong, nonatomic) SCN3DPlayerView *scn3DView;
 @property (strong, nonatomic) SCN3DVideoAdatper *scn3DAdatper;
 @property (strong, nonatomic) UIImage *image;
-
+@property (strong, nonatomic) CADisplayLink *displayLink;  // 同步显示器的刷新频率
 
 @property (weak, nonatomic) IBOutlet UISlider *videoSlider;
 @property (weak, nonatomic) IBOutlet UILabel *curTimeLab;
@@ -44,8 +44,6 @@
     self.scn3DView.backgroundColor = [UIColor blackColor];
     [self.videoView addSubview:self.scn3DView];
     
-    
-    
     [self changeDataSource:self.sourceSegment];
     [self changeDisplayMode:self.displaySegment];
 }
@@ -62,9 +60,12 @@
         if (self.scn3DAdatper.isPlaying) {
             [self.scn3DAdatper removeDisplaylink];
             [self.scn3DAdatper pause];
+            self.scn3DAdatper = nil;
         }
-        self.scn3DAdatper = nil;
+        self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(refreshDisplayLink)];
+        [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
         
+        // 初始化图片
         NSString *filePath = [[NSBundle mainBundle] pathForResource:@"vr_image" ofType:@"jpg"];
         self.image = [UIImage imageWithContentsOfFile:filePath];
         [self.scn3DView setFramesPerVideoImage:self.image];
@@ -73,6 +74,7 @@
         NSString *filePath = [[NSBundle mainBundle] pathForResource:@"vr_video" ofType:@"mp4"];
         self.image = nil;
         [self.scn3DView setFramesPerVideoImage:self.image];
+        self.displayLink = nil;
         
         // 初始化解码器
         self.scn3DAdatper = [[SCN3DVideoAdatper alloc] init];
@@ -83,6 +85,10 @@
     self.videoSlider.value = 0;
     self.curTimeLab.text = @"--:--";
     self.allTimeLab.text = @"--:--";
+}
+
+- (void)refreshDisplayLink {
+    [self.scn3DView setFramesPerVideoImage:self.image];
 }
 
 - (IBAction)changeDisplayMode:(id)sender {
@@ -143,7 +149,6 @@
         default:
             break;
     }
-    [self.scn3DView setFramesPerVideoImage:self.image];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
