@@ -37,12 +37,12 @@
 @interface SCN3DVideoAdatper : NSObject
 
 @property (nonatomic, weak) id<SCN3DVideoAdatperDelegate> delegate;
-@property (nonatomic, strong, readonly) AVPlayer     *player;
-@property (nonatomic, strong, readonly) AVPlayerItem *playerItem;
-@property (nonatomic, strong, readonly) AVPlayerItemVideoOutput *output;  // 视频输出流
-@property (nonatomic, assign, getter=isPlaying, readonly) BOOL playing;  // 是否处于播放状态
-@property (nonatomic, assign, getter=isLooping) BOOL looping;  // 是否循环播放
-@property (nonatomic, assign, getter=isMuted) BOOL muted;  // 是否静音
+@property (strong, nonatomic, readonly) AVPlayer     *player;
+@property (strong, nonatomic, readonly) AVPlayerItem *playerItem;
+@property (strong, nonatomic, readonly) AVPlayerItemVideoOutput *output;  // 视频输出流
+@property (assign, nonatomic, getter=isPlaying, readonly) BOOL playing;  // 是否处于播放状态
+@property (assign, nonatomic, getter=isLooping) BOOL looping;  // 是否循环播放
+@property (assign, nonatomic, getter=isMuted) BOOL muted;  // 是否静音
 
 //_________________________________________________________________________________________________
 // Setting

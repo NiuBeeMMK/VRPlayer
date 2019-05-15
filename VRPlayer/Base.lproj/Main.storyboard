@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="vqK-G5-KbY">
-    <device id="retina5_9" orientation="portrait">
+    <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,7 +15,7 @@
             <objects>
                 <navigationController id="vqK-G5-KbY" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="M8t-ft-c6L">
-                        <rect key="frame" x="0.0" y="44" width="375" height="44"/>
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -31,16 +31,106 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KpM-H8-Rkb">
+                                <rect key="frame" x="0.0" y="64" width="375" height="281.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="KpM-H8-Rkb" secondAttribute="height" multiplier="4:3" id="6S9-Um-XHo"/>
+                                </constraints>
+                            </view>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="NSZ-Gf-FfL">
+                                <rect key="frame" x="15" y="355.5" width="120" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="DtX-aB-MTB"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="图片"/>
+                                    <segment title="视频"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changeDataSource:" destination="BYZ-38-t0r" eventType="valueChanged" id="uYM-iO-f2g"/>
+                                </connections>
+                            </segmentedControl>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="5y6-4B-2vJ">
+                                <rect key="frame" x="148" y="354.5" width="214" height="31"/>
+                                <connections>
+                                    <action selector="timeSliderValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="lzB-AW-7X2"/>
+                                </connections>
+                            </slider>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RbJ-Ew-QEh">
+                                <rect key="frame" x="150" y="384.5" width="39" height="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GHx-Cc-RFW">
+                                <rect key="frame" x="321" y="384.5" width="39" height="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="模式选择" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fal-Fk-NuS">
+                                <rect key="frame" x="15" y="413.5" width="66" height="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="dJE-pl-hQ5">
+                                <rect key="frame" x="15" y="453.5" width="345" height="29"/>
+                                <segments>
+                                    <segment title="普通"/>
+                                    <segment title="平面"/>
+                                    <segment title="圆柱"/>
+                                    <segment title="球形"/>
+                                    <segment title="VR全景"/>
+                                    <segment title="VR眼镜"/>
+                                    <segment title="小行星"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changeDisplayMode:" destination="BYZ-38-t0r" eventType="valueChanged" id="y9M-kK-uYd"/>
+                                </connections>
+                            </segmentedControl>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="KpM-H8-Rkb" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="B86-2E-HnO"/>
+                            <constraint firstItem="NSZ-Gf-FfL" firstAttribute="top" secondItem="KpM-H8-Rkb" secondAttribute="bottom" constant="10" id="QoC-Nx-jVE"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dJE-pl-hQ5" secondAttribute="trailing" constant="15" id="U6u-Hr-6uM"/>
+                            <constraint firstItem="5y6-4B-2vJ" firstAttribute="centerY" secondItem="NSZ-Gf-FfL" secondAttribute="centerY" id="ZuD-pF-gPG"/>
+                            <constraint firstItem="RbJ-Ew-QEh" firstAttribute="top" secondItem="5y6-4B-2vJ" secondAttribute="bottom" id="cC0-gR-WGo"/>
+                            <constraint firstItem="KpM-H8-Rkb" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="fcr-Lh-lBI"/>
+                            <constraint firstItem="GHx-Cc-RFW" firstAttribute="top" secondItem="5y6-4B-2vJ" secondAttribute="bottom" id="gHp-AT-WGZ"/>
+                            <constraint firstItem="fal-Fk-NuS" firstAttribute="top" secondItem="NSZ-Gf-FfL" secondAttribute="bottom" constant="30" id="hG4-wc-DYE"/>
+                            <constraint firstItem="5y6-4B-2vJ" firstAttribute="leading" secondItem="NSZ-Gf-FfL" secondAttribute="trailing" constant="15" id="iuz-bb-u1F"/>
+                            <constraint firstItem="fal-Fk-NuS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="kGY-q7-b9i"/>
+                            <constraint firstItem="dJE-pl-hQ5" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="kSZ-Oo-rgG"/>
+                            <constraint firstItem="KpM-H8-Rkb" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="n2r-o7-ajc"/>
+                            <constraint firstItem="RbJ-Ew-QEh" firstAttribute="leading" secondItem="5y6-4B-2vJ" secondAttribute="leading" id="o12-Hw-crm"/>
+                            <constraint firstItem="dJE-pl-hQ5" firstAttribute="top" secondItem="fal-Fk-NuS" secondAttribute="bottom" constant="20" id="pUp-rd-QCW"/>
+                            <constraint firstItem="GHx-Cc-RFW" firstAttribute="trailing" secondItem="5y6-4B-2vJ" secondAttribute="trailing" id="ptR-Kf-trK"/>
+                            <constraint firstItem="NSZ-Gf-FfL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="sow-QK-kvM"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="5y6-4B-2vJ" secondAttribute="trailing" constant="15" id="vnt-qT-zVz"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
-                    <navigationItem key="navigationItem" id="Cmr-ua-hl5"/>
+                    <navigationItem key="navigationItem" id="Cmr-ua-hl5">
+                        <nil key="title"/>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="allTimeLab" destination="GHx-Cc-RFW" id="Af6-RR-ZMv"/>
+                        <outlet property="curTimeLab" destination="RbJ-Ew-QEh" id="VSb-is-gme"/>
+                        <outlet property="displaySegment" destination="dJE-pl-hQ5" id="YVe-ou-Ar1"/>
+                        <outlet property="sourceSegment" destination="NSZ-Gf-FfL" id="EF1-OC-OcZ"/>
+                        <outlet property="videoSlider" destination="5y6-4B-2vJ" id="OVH-tH-0VG"/>
+                        <outlet property="videoView" destination="KpM-H8-Rkb" id="nLk-vx-S7A"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="178" y="134"/>
+            <point key="canvasLocation" x="175.36231884057972" y="133.69565217391306"/>
         </scene>
     </scenes>
 </document>

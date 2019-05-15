@@ -21,15 +21,15 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
 
 @interface SCN3DVideoAdatper ()
 
-@property (nonatomic, strong, readwrite) AVPlayer *player;
-@property (nonatomic, strong, readwrite) AVPlayerItem *playerItem;
-@property (nonatomic, strong, readwrite) AVPlayerItemVideoOutput *output;
+@property (strong, nonatomic, readwrite) AVPlayer *player;
+@property (strong, nonatomic, readwrite) AVPlayerItem *playerItem;
+@property (strong, nonatomic, readwrite) AVPlayerItemVideoOutput *output;
 
-@property (nonatomic, assign, getter=isPlaying, readwrite) BOOL playing;
-@property (nonatomic, assign, getter=isSeeking) BOOL seeking;
-@property (nonatomic, assign) BOOL isAtEndTime;
-@property (nonatomic, strong) id timeObserverToken;
-@property (nonatomic, strong) CADisplayLink *displayLink;  // 同步显示器的刷新频率
+@property (assign, nonatomic, getter=isPlaying, readwrite) BOOL playing;
+@property (assign, nonatomic, getter=isSeeking) BOOL seeking;
+@property (assign, nonatomic) BOOL isAtEndTime;
+@property (strong, nonatomic) id timeObserverToken;
+@property (strong, nonatomic) CADisplayLink *displayLink;  // 同步显示器的刷新频率
 
 @end
 
@@ -166,7 +166,7 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
 }
 
 - (void)seekToTime:(float)time completion:(void (^)(void))completion {
-    if (self.seeking) {
+    if (_seeking) {
         return;
     }
     
@@ -176,11 +176,11 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
             return;
         }
         
-        self.seeking = YES;
+        _seeking = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self.player seekToTime:cmTime completionHandler:^(BOOL finished) {
-                self.isAtEndTime = NO;
-                self.seeking = NO;
+                self->_isAtEndTime = NO;
+                self->_seeking = NO;
                 if (completion) {
                     dispatch_async( dispatch_get_main_queue(), ^{
                         completion();
@@ -253,17 +253,17 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
 
 - (void)displayLinkCallback:(CADisplayLink *)sender {
     CMTime outputItemTime = [self.output itemTimeForHostTime:CACurrentMediaTime()];
-//    if([self.output hasNewPixelBufferForItemTime:outputItemTime]) {
-        CVPixelBufferRef bufferRef = [self.output copyPixelBufferForItemTime:outputItemTime itemTimeForDisplay:NULL];
-        
-        if (bufferRef != nil) {
-            UIImage *videoImage = [self pixelBufferToImage:bufferRef];
-            if ([self.delegate respondsToSelector:@selector(videoPlayer:displaylinkCallbackImage:)]) {
-                [self.delegate videoPlayer:self displaylinkCallbackImage:videoImage];
-            }
-            CFRelease(bufferRef);
+    //    if([self.output hasNewPixelBufferForItemTime:outputItemTime]) {
+    CVPixelBufferRef bufferRef = [self.output copyPixelBufferForItemTime:outputItemTime itemTimeForDisplay:NULL];
+    
+    if (bufferRef != nil) {
+        UIImage *videoImage = [self pixelBufferToImage:bufferRef];
+        if ([self.delegate respondsToSelector:@selector(videoPlayer:displaylinkCallbackImage:)]) {
+            [self.delegate videoPlayer:self displaylinkCallbackImage:videoImage];
         }
-//    }
+        CFRelease(bufferRef);
+    }
+    //    }
 }
 
 - (UIImage *)pixelBufferToImage:(CVPixelBufferRef)bufferRef {
@@ -299,20 +299,20 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
         [self.playerItem removeOutput:self.output];
         self.playerItem = nil;
     }
-    self.playing = NO;
-    self.isAtEndTime = NO;
+    _playing = NO;
+    _isAtEndTime = NO;
 }
 
 - (void)preparePlayerItem:(AVPlayerItem *)playerItem {
     NSParameterAssert(playerItem);
-    self.playerItem = playerItem;
+    _playerItem = playerItem;
     [self addPlayerItemObservers:playerItem];
     [self.player replaceCurrentItemWithPlayerItem:playerItem];
 }
 
 - (void)restart {
     [self.player seekToTime:kCMTimeZero toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
-        self.isAtEndTime = NO;
+        self->_isAtEndTime = NO;
         if (self.isPlaying) {
             [self play];
         }
@@ -321,8 +321,8 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
 
 - (BOOL)isAtEndTime { // TODO: this is a fucked up override, seems like something could be wrong [AH]
     if (self.player && self.player.currentItem) {
-        if (self.isAtEndTime) {
-            return self.isAtEndTime;
+        if (_isAtEndTime) {
+            return _isAtEndTime;
         }
         
         float currentTime = 0.0f;
@@ -437,15 +437,15 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
     self.timeObserverToken = [self.player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(TimeObserverInterval, NSEC_PER_SEC)
                                                                        queue:dispatch_get_main_queue()
                                                                   usingBlock:^(CMTime time)
-    {
-        __strong typeof (self) strongSelf = weakSelf;
-        if (!strongSelf) {
-            return;
-        }
-        if ([strongSelf.delegate respondsToSelector:@selector(videoPlayer:timeDidChange:)]) {
-            [strongSelf.delegate videoPlayer:strongSelf timeDidChange:time];
-        }
-    }];
+                              {
+                                  __strong typeof (self) strongSelf = weakSelf;
+                                  if (!strongSelf) {
+                                      return;
+                                  }
+                                  if ([strongSelf.delegate respondsToSelector:@selector(videoPlayer:timeDidChange:)]) {
+                                      [strongSelf.delegate videoPlayer:strongSelf timeDidChange:time];
+                                  }
+                              }];
 }
 
 - (void)removeTimeObserver {
@@ -464,9 +464,9 @@ static void *VideoPlayer_PlayerItemLoadedTimeRangesContext = &VideoPlayer_Player
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == VideoPlayer_PlayerRateChangedContext) {
-//        if (self.playerItem != nil) {
-//            NSLog(@"TODO: Show loading indicator");
-//        }
+        //        if (self.playerItem != nil) {
+        //            NSLog(@"TODO: Show loading indicator");
+        //        }
     }
     else if (context == VideoPlayer_PlayerItemStatusContext) {
         AVPlayerStatus newStatus = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];

@@ -11,24 +11,24 @@
 
 @interface SCN3DPlayerView ()
 
-@property (nonatomic, assign) float rotateX;
-@property (nonatomic, assign) float rotateY;
-@property (nonatomic, assign) float minRotateX;
-@property (nonatomic, assign) float maxRotateX;
-@property (nonatomic, assign) float minScale;
-@property (nonatomic, assign) float maxScale;
-@property (nonatomic, assign) float curScale;
-@property (nonatomic, assign) float prevScale;
-@property (nonatomic, assign) float videoAspRatio;
-@property (nonatomic, assign) BOOL  pinchEnabled;
-@property (nonatomic, assign) BOOL  horizontalEnabled;
-@property (nonatomic, assign) BOOL  verticalEnabled;
-@property (nonatomic, assign) BOOL  GSensorEnabled;
-@property (nonatomic, assign) SCN3DInteractive_ interactive;
-@property (nonatomic, assign) SCN3DDisplayMode_ displayMode;
-@property (nonatomic, assign) SCNMatrix4 modelMatrix;
-@property (nonatomic, strong) CMMotionManager *motionManager;
-@property (nonatomic, assign) UIInterfaceOrientation orientation;
+@property (assign, nonatomic) float rotateX;
+@property (assign, nonatomic) float rotateY;
+@property (assign, nonatomic) float minRotateX;
+@property (assign, nonatomic) float maxRotateX;
+@property (assign, nonatomic) float minScale;
+@property (assign, nonatomic) float maxScale;
+@property (assign, nonatomic) float curScale;
+@property (assign, nonatomic) float prevScale;
+@property (assign, nonatomic) float videoAspRatio;
+@property (assign, nonatomic) BOOL  pinchEnabled;
+@property (assign, nonatomic) BOOL  horizontalEnabled;
+@property (assign, nonatomic) BOOL  verticalEnabled;
+@property (assign, nonatomic) BOOL  GSensorEnabled;
+@property (assign, nonatomic) SCN3DInteractive interactive;
+@property (assign, nonatomic) SCN3DDisplayMode displayMode;
+@property (assign, nonatomic) SCNMatrix4 modelMatrix;
+@property (strong, nonatomic) CMMotionManager *motionManager;
+@property (assign, nonatomic) UIInterfaceOrientation orientation;
 
 @end
 
@@ -41,17 +41,6 @@
     return self;
 }
 
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-    if (self.displayMode == SCN3DDisplayMode_VRGlass) {
-        self.scViewLeft.frame  = CGRectMake(0, 0, self.frame.size.width / 2, self.frame.size.height);
-        self.scViewRight.frame = CGRectMake(self.frame.size.width / 2, 0, self.frame.size.width / 2, self.frame.size.height);
-    }
-    else {
-        self.scViewLeft.frame  = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-    }
-}
-
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     [super setBackgroundColor:backgroundColor];
     self.scViewLeft.backgroundColor  = backgroundColor;
@@ -59,12 +48,16 @@
 }
 
 - (void)initScene {
-    self.scene  = [SCNScene scene];
-    self.scViewLeft = [[SCNView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height) options:nil];
-    self.scViewLeft.backgroundColor = [UIColor blackColor];
+    self.scene = [SCNScene scene];
+    self.scViewLeft = [[SCNView alloc] initWithFrame:self.bounds options:nil];
     self.scViewLeft.scene = self.scene;
     self.scViewLeft.antialiasingMode = SCNAntialiasingModeMultisampling4X;
     [self addSubview:self.scViewLeft];
+    
+    self.scViewRight = [[SCNView alloc] initWithFrame:self.bounds options:nil];
+    self.scViewRight.scene = self.scene;
+    self.scViewRight.antialiasingMode = SCNAntialiasingModeMultisampling4X;
+    [self addSubview:self.scViewRight];
     
     self.cameraNode = [SCNNode node];
     self.cameraNode.camera = [SCNCamera camera];
@@ -74,14 +67,48 @@
     [self addGestureRecognizer:pinchGestureRecognizer];
 }
 
-- (void)initSceneNodeWithMode:(SCN3DDisplayMode_)displayMode {
-    [self.shapeNode   removeFromParentNode];
-    [self.scViewRight removeFromSuperview];
+- (void)initSceneViewFrame:(SCN3DDisplayMode)displayMode {  // 初始化左右视图大小
+    if (self.displayMode == SCN3DDisplayModeVRGlasses) {
+        self.scViewLeft.frame  = CGRectMake(0, 0, self.frame.size.width / 2, self.frame.size.height);
+        self.scViewRight.frame = CGRectMake(self.frame.size.width / 2, 0, self.frame.size.width / 2, self.frame.size.height);
+        self.scViewRight.hidden = NO;
+    }
+    else {
+        self.scViewLeft.frame  = self.bounds;
+        self.scViewRight.frame = CGRectZero;
+        self.scViewRight.hidden = YES;
+    }
+}
+
+- (void)initParameterSetting {  // 初始化参数
+    self.rotateX    = 0.0;
+    self.rotateY    = 0.0;
+    self.minRotateX = - M_PI / 2;
+    self.maxRotateX = + M_PI / 2;
+    self.minScale   = 1.0;
+    self.maxScale   = 2.0;
+    self.curScale   = 1.0;
+    self.prevScale  = self.curScale;
+    if (self.videoAspRatio == 0) {
+        self.videoAspectRatio = 2 / 1;
+    }
+    self.orientation = UIInterfaceOrientationPortrait;
+    self.horizontalEnabled = NO;
+    self.verticalEnabled = NO;
+    self.GSensorEnabled = NO;
+    self.pinchEnabled = NO;
+    [self stopGSENSORMotion];
+}
+
+- (void)initSceneNodeWithMode:(SCN3DDisplayMode)displayMode {  // 初始化显示模式
+    [self.shapeNode removeFromParentNode];
+    [self initSceneViewFrame:displayMode];
     [self initParameterSetting];
+    
     switch (displayMode) {
-        case SCN3DDisplayMode_Plane_Normal: {
-            float width  = 2.0;
-            float height = width / self.videoAspRatio;
+        case SCN3DDisplayModePlaneNormal: {
+            float width  = 4.0;
+            float height = 2.0 * self.bounds.size.width / (self.videoAspRatio * self.bounds.size.height);
             self.shapeNode = [SCNNode nodeWithGeometry:[SCNPlane planeWithWidth:width height:height]];
             self.shapeNode.geometry.firstMaterial.diffuse.wrapT = SCNWrapModeClamp;
             self.shapeNode.geometry.firstMaterial.diffuse.wrapS = SCNWrapModeClamp;
@@ -90,9 +117,9 @@
             self.cameraNode.camera.usesOrthographicProjection = YES;
         }
             break;
-        case SCN3DDisplayMode_Plane_Slide: {
-            float width  = 2.0;
-            float height = width / self.videoAspRatio;
+        case SCN3DDisplayModePlaneSlide: {
+            float width  = 4.0;
+            float height = 2.0 * self.bounds.size.width / (self.videoAspRatio * self.bounds.size.height);
             self.shapeNode = [SCNNode nodeWithGeometry:[SCNPlane planeWithWidth:width height:height]];
             self.shapeNode.geometry.firstMaterial.diffuse.wrapT = SCNWrapModeRepeat;
             self.shapeNode.geometry.firstMaterial.diffuse.wrapS = SCNWrapModeRepeat;
@@ -101,7 +128,7 @@
             self.cameraNode.camera.usesOrthographicProjection = YES;
         }
             break;
-        case SCN3DDisplayMode_Tube: {
+        case SCN3DDisplayModeShapeTube: {
             SCNTube *tube = [SCNTube tubeWithInnerRadius:1.0 outerRadius:1.0 height:1.0];
             tube.radialSegmentCount = 96;
             self.shapeNode = [SCNNode nodeWithGeometry:tube];
@@ -112,7 +139,7 @@
             self.cameraNode.camera.usesOrthographicProjection = YES;
         }
             break;
-        case SCN3DDisplayMode_Sphere: {
+        case SCN3DDisplayModeShapeBall: {
             SCNSphere *sphere = [SCNSphere sphereWithRadius:1.0];
             sphere.segmentCount = 96;
             self.shapeNode = [SCNNode nodeWithGeometry:sphere];
@@ -123,18 +150,18 @@
             self.cameraNode.camera.usesOrthographicProjection = YES;
         }
             break;
-        case SCN3DDisplayMode_VR360: {
+        case SCN3DDisplayModeVR360Full: {
             SCNSphere *sphere = [SCNSphere sphereWithRadius:1.0];
             sphere.segmentCount = 96;
             self.shapeNode = [SCNNode nodeWithGeometry:sphere];
             self.shapeNode.geometry.firstMaterial.diffuse.wrapT = SCNWrapModeClamp;
             self.shapeNode.geometry.firstMaterial.diffuse.wrapS = SCNWrapModeClamp;
             self.shapeNode.geometry.firstMaterial.cullMode = SCNCullFront;
-            self.cameraNode.position = SCNVector3Make(0, 0, 1.5);
+            self.cameraNode.position = SCNVector3Make(0, 0.1, 1.0);
             self.cameraNode.camera.usesOrthographicProjection = NO;
         }
             break;
-        case SCN3DDisplayMode_VRGlass: {
+        case SCN3DDisplayModeVRGlasses: {
             SCNSphere *sphere = [SCNSphere sphereWithRadius:1.0];
             sphere.segmentCount = 96;
             self.shapeNode = [SCNNode nodeWithGeometry:sphere];
@@ -143,13 +170,6 @@
             self.shapeNode.geometry.firstMaterial.cullMode = SCNCullFront;
             self.cameraNode.position = SCNVector3Make(0, 0, 1.5);
             self.cameraNode.camera.usesOrthographicProjection = NO;
-            
-            self.scViewLeft.frame  = CGRectMake(0, 0, self.frame.size.width / 2, self.frame.size.height);
-            self.scViewRight = [[SCNView alloc] initWithFrame:CGRectMake(self.frame.size.width / 2, 0, self.frame.size.width / 2, self.frame.size.height) options:nil];
-            self.scViewRight.backgroundColor = [UIColor blackColor];
-            self.scViewRight.scene = self.scene;
-            self.scViewRight.antialiasingMode = SCNAntialiasingModeMultisampling4X;
-            [self addSubview:self.scViewRight];
         }
             break;
             
@@ -168,26 +188,6 @@
     [self setFramesPerVideoImage:nil];
 }
 
-- (void)initParameterSetting {
-    self.rotateX    = 0.0;
-    self.rotateY    = 0.0;
-    self.minRotateX = - M_PI / 2;
-    self.maxRotateX = + M_PI / 2;
-    self.minScale   = 1.0;
-    self.maxScale   = 2.0;
-    self.curScale   = 1.0;
-    self.prevScale  = self.curScale;
-    self.videoAspectRatio = 4.0 / 3.0;
-    self.scViewLeft.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-    self.scViewRight = nil;
-    
-    self.horizontalEnabled = NO;
-    self.verticalEnabled = NO;
-    self.GSensorEnabled = NO;
-    self.pinchEnabled = NO;
-    [self stopGSENSORMotion];
-}
-
 - (void)dealloc {
     [self.scene.rootNode removeFromParentNode];
     self.scViewLeft  = nil;
@@ -199,11 +199,11 @@
 #pragma mark SCN3DPlayerSetting
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-- (void)setInteractiveMode:(SCN3DInteractive_)interactive {
+- (void)setInteractiveMode:(SCN3DInteractive)interactive {
     self.interactive = interactive;
 }
 
-- (void)setVideoDisplayMode:(SCN3DDisplayMode_)displayMode {
+- (void)setVideoDisplayMode:(SCN3DDisplayMode)displayMode {
     self.displayMode = displayMode;
     [self initSceneNodeWithMode:displayMode];
 }
@@ -234,8 +234,8 @@
 - (void)setCurrentOrientation:(UIInterfaceOrientation)orientation {
     self.orientation = orientation;
     switch (self.displayMode) {
-        case SCN3DDisplayMode_Plane_Normal:
-        case SCN3DDisplayMode_Plane_Slide: {
+        case SCN3DDisplayModePlaneNormal:
+        case SCN3DDisplayModePlaneSlide: {
             SCNPlane *plane = (SCNPlane *)self.shapeNode.geometry;
             float perPixel, videoWidth, videoHeight;
             
@@ -266,16 +266,16 @@
             }
         }
             break;
-        case SCN3DDisplayMode_Tube: {
+        case SCN3DDisplayModeShapeTube: {
         }
             break;
-        case SCN3DDisplayMode_Sphere: {
+        case SCN3DDisplayModeShapeBall: {
         }
             break;
-        case SCN3DDisplayMode_VR360: {
+        case SCN3DDisplayModeVR360Full: {
         }
             break;
-        case SCN3DDisplayMode_VRGlass: {
+        case SCN3DDisplayModeVRGlasses: {
         }
             break;
             
@@ -295,7 +295,7 @@
 }
 
 - (void)setCurrentRotateX:(float)rotateX rotateY:(float)rotateY {
-    [self changeNodeTransformWithRotateX:GLKMathDegreesToRadians(-rotateX) rotateY:GLKMathDegreesToRadians(-rotateY)];
+    [self changeShapeNodeTransformWithRotateX:GLKMathDegreesToRadians(-rotateX) rotateY:GLKMathDegreesToRadians(-rotateY)];
 }
 
 - (void)setVerticalMinRotate:(float)minRotate maxRotate:(float)maxRotate {
@@ -351,17 +351,17 @@
     
     rotX = self.verticalEnabled   ? rotX : 0;
     rotY = self.horizontalEnabled ? rotY : 0;
-    [self changeNodeTransformWithRotateX:rotX / self.curScale rotateY:rotY / self.curScale];
+    [self changeShapeNodeTransformWithRotateX:rotX / self.curScale rotateY:rotY / self.curScale];
 }
 
-- (void)changeNodeTransformWithRotateX:(float)rotX rotateY:(float)rotY {
+- (void)changeShapeNodeTransformWithRotateX:(float)rotX rotateY:(float)rotY {
     switch (self.displayMode) {
-        case SCN3DDisplayMode_Plane_Normal: {}
+        case SCN3DDisplayModePlaneNormal:
             break;
-        case SCN3DDisplayMode_Plane_Slide: {
+        case SCN3DDisplayModePlaneSlide: {
             SCNMatrix4 contentsTransform = self.shapeNode.geometry.firstMaterial.diffuse.contentsTransform;
-            contentsTransform = SCNMatrix4Translate(contentsTransform, rotY, 0, 0);
-            contentsTransform = SCNMatrix4Translate(contentsTransform, 0, rotX, 0);
+            contentsTransform = SCNMatrix4Translate(contentsTransform, rotY, 0, 0);  // 左右方向平移
+            contentsTransform = SCNMatrix4Translate(contentsTransform, 0, rotX, 0);  // 上下方向平移
             self.shapeNode.geometry.firstMaterial.diffuse.contentsTransform = contentsTransform;
         }
             break;
@@ -379,8 +379,14 @@
 //            NSLog(@"self.rotateX = %f, %f", self.rotateX, GLKMathRadiansToDegrees(self.rotateX));
             
             SCNMatrix4 modelViewMatrix = SCNMatrix4Identity;
-            modelViewMatrix = SCNMatrix4Rotate(modelViewMatrix, -self.rotateY, 0, 1, 0);
-            modelViewMatrix = SCNMatrix4Rotate(modelViewMatrix, -self.rotateX, 1, 0, 0);
+            if (self.displayMode == SCN3DDisplayModeShapeTube) {
+                modelViewMatrix = SCNMatrix4Rotate(modelViewMatrix, self.rotateY, 0, 1, 0);  // 左右方向旋转
+                modelViewMatrix = SCNMatrix4Rotate(modelViewMatrix, self.rotateX, 1, 0, 0);  // 上下方向旋转
+            }
+            else {
+                modelViewMatrix = SCNMatrix4Rotate(modelViewMatrix, -self.rotateY, 0, 1, 0);
+                modelViewMatrix = SCNMatrix4Rotate(modelViewMatrix, -self.rotateX, 1, 0, 0);
+            }
             modelViewMatrix = SCNMatrix4Scale(modelViewMatrix, self.curScale, self.curScale, self.curScale);
             self.shapeNode.transform = modelViewMatrix;
         }
@@ -402,7 +408,7 @@
             else if (self.curScale > self.maxScale) {
                 self.curScale = self.maxScale;
             }
-            
+
             [self setCurrentScale:self.curScale];
         }
     } else if(paramSender.state == UIGestureRecognizerStateEnded) {
@@ -415,10 +421,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 - (void)startGSENSORMotion {
-    float gFPS = 30.0f;
-    if (self.displayMode == SCN3DDisplayMode_VRGlass) {
-        gFPS = 120.0f;
-    }
+    float gFPS = 120.0f;
     self.motionManager = [[CMMotionManager alloc] init];
     self.motionManager.deviceMotionUpdateInterval = 1.0f / gFPS;
     self.motionManager.gyroUpdateInterval = 1.0f / gFPS;
@@ -432,20 +435,15 @@
         double rotateX = -motion.rotationRate.y / damping;  // X 轴旋转
         double rotateY = -motion.rotationRate.x / damping;  // Y 轴旋转
         
-        switch (self.orientation) {
-            case UIDeviceOrientationLandscapeRight:
-                rotateX = +motion.rotationRate.x / damping;
-                rotateY = -motion.rotationRate.y / damping;
-                break;
-            case UIDeviceOrientationLandscapeLeft:
-                rotateX = -motion.rotationRate.x / damping;
-                rotateY = +motion.rotationRate.y / damping;
-                break;
-            case UIDeviceOrientationPortrait:
-            default:
-                break;
+        if (self.orientation == UIDeviceOrientationLandscapeRight) {
+            rotateX = +motion.rotationRate.x / damping;
+            rotateY = -motion.rotationRate.y / damping;
         }
-        [self changeNodeTransformWithRotateX:(rotateY / 2) / self.curScale rotateY:rotateX / self.curScale];
+        else if (self.orientation == UIDeviceOrientationLandscapeLeft) {
+            rotateX = -motion.rotationRate.x / damping;
+            rotateY = +motion.rotationRate.y / damping;
+        }
+        [self changeShapeNodeTransformWithRotateX:(rotateY / 2) / self.curScale rotateY:rotateX / self.curScale];
     }];
 }
 
